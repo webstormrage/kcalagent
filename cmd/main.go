@@ -10,15 +10,15 @@ import (
 	"time"
 )
 
-func getDayStart()time.Time{
-    dayStartTime := time.Now()
+func getDayStart() time.Time {
+	dayStartTime := time.Now()
 	dayStartTime = dayStartTime.Add(-6 * time.Hour)
 	dayStartTime = time.Date(dayStartTime.Year(), dayStartTime.Month(), dayStartTime.Day(),
 		6, 0, 0, 0, dayStartTime.Location())
-	return dayStartTime	
+	return dayStartTime
 }
 
-func aggregate(records []kcalAi.ProductRecord){
+func aggregate(records []kcalAi.ProductRecord) {
 	var kcal float32 = 0
 	var proteins float32 = 0
 	var fats float32 = 0
@@ -26,10 +26,10 @@ func aggregate(records []kcalAi.ProductRecord){
 	details := ""
 	for i, v := range records {
 		if len(v.LlmResult) > 0 {
-            err := os.WriteFile("logs/multi-output-"+strconv.Itoa(i), []byte(v.LlmResult), 0644)
-		    if err != nil {
-			    fmt.Println(err)
-		    }
+			err := os.WriteFile("logs/multi-output-"+strconv.Itoa(i), []byte(v.LlmResult), 0644)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 		kcal += v.GetKcal()
 		proteins += v.GetProteins()
@@ -38,21 +38,22 @@ func aggregate(records []kcalAi.ProductRecord){
 		details += fmt.Sprintf("%s: %.0f (%.0f, %.0f, %.0f)\n", v.Product.Name, v.GetKcal(), v.GetProteins(), v.GetFats(), v.GetCarbohydrates())
 	}
 	err := os.WriteFile("logs/multi-output-details", []byte(details), 0644)
+	fmt.Printf(details)
 	fmt.Printf("Промежуточный итог: %0.f (%0.f, %0.f, %0.f)\n", kcal, proteins, fats, carbohydrates)
 	if err != nil {
 		fmt.Println(err)
 	}
 }
 
-func saveToDatabase(records []kcalAi.ProductRecord){
-    for _, v := range records {
+func saveToDatabase(records []kcalAi.ProductRecord) {
+	for _, v := range records {
 		fmt.Printf("[Сохранение в базу]: %s\n", v.Product.Name)
 		err := kcaldb.SaveMeals(&kcaldb.MealPayload{
-			Name: v.Product.Name,
-			Weight: float64(v.Weight),
-			Kcal: float64(v.GetKcal()),
-			Proteins: float64(v.GetProteins()),
-			Fats: float64(v.GetFats()),
+			Name:          v.Product.Name,
+			Weight:        float64(v.Weight),
+			Kcal:          float64(v.GetKcal()),
+			Proteins:      float64(v.GetProteins()),
+			Fats:          float64(v.GetFats()),
 			Carbohydrates: float64(v.GetCarbohydrates()),
 		})
 		if err != nil {
@@ -75,19 +76,23 @@ func printReport() {
 }
 
 func main() {
-	err := appContext.Init()
-    if err != nil {
-        panic(err) 
-    }
+	err := kcaldb.SetupDb()
+	if err != nil {
+		panic(err)
+	}
+	err = appContext.Init()
+	if err != nil {
+		panic(err)
+	}
 	fileData, err := os.ReadFile("logs/input")
-    if err != nil {
-        panic(err) 
-    }
+	if err != nil {
+		panic(err)
+	}
 	records, err := kcalAi.GetMealKPFC(string(fileData))
 	if err != nil {
-        fmt.Println(err)
+		fmt.Println(err)
 		return
-    }
+	}
 	aggregate(records)
 	var saveToDbAnswer string
 	fmt.Println("Сохранить запись в базу?")

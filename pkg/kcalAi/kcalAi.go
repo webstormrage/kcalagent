@@ -9,29 +9,29 @@ import (
 )
 
 type ProductRecord struct {
-	Product kcaldb.Product
-	Weight float32
-	LlmResult string;
-	Error error;
+	Product   kcaldb.Product
+	Weight    float32
+	LlmResult string
+	Error     error
 }
 
-func (r *ProductRecord) GetKcal()float32{
+func (r *ProductRecord) GetKcal() float32 {
 	return r.Weight * float32(r.Product.Kcal) / 100
 }
 
-func (r *ProductRecord) GetProteins()float32{
+func (r *ProductRecord) GetProteins() float32 {
 	return r.Weight * float32(r.Product.Proteins) / 100
 }
 
-func (r *ProductRecord) GetFats()float32{
+func (r *ProductRecord) GetFats() float32 {
 	return r.Weight * float32(r.Product.Fats) / 100
 }
 
-func (r *ProductRecord) GetCarbohydrates()float32{
+func (r *ProductRecord) GetCarbohydrates() float32 {
 	return r.Weight * float32(r.Product.Carbohydrates) / 100
 }
 
-func mealItemToProduct(meal *queryMapMeals.MealItem)(*ProductRecord) {
+func mealItemToProduct(meal *queryMapMeals.MealItem) *ProductRecord {
 	product, err := kcaldb.GetProductByName(meal.Name)
 	fmt.Printf("[Поиск в таблице products]: %s\n", meal.Name)
 	if err != nil {
@@ -43,7 +43,7 @@ func mealItemToProduct(meal *queryMapMeals.MealItem)(*ProductRecord) {
 		fmt.Printf("[Совпадение в таблице products]: %s\n", product.Name)
 		return &ProductRecord{
 			Product: *product,
-			Weight: float32(meal.Weight),
+			Weight:  float32(meal.Weight),
 		}
 	}
 	fmt.Printf("[Не найдено в таблице products]: %s\n", meal.Name)
@@ -58,7 +58,7 @@ func mealItemToProduct(meal *queryMapMeals.MealItem)(*ProductRecord) {
 		fmt.Printf("[Совпадение в таблице products_aliases]: %s\n", product.Name)
 		return &ProductRecord{
 			Product: *product,
-			Weight: float32(meal.Weight),
+			Weight:  float32(meal.Weight),
 		}
 	}
 	fmt.Printf("[Не найдено в таблице products_aliases]: %s\n", meal.Name)
@@ -67,15 +67,32 @@ func mealItemToProduct(meal *queryMapMeals.MealItem)(*ProductRecord) {
 	fmt.Printf("[genai преобразование в json]:\n%s\n", answer)
 	product, err = queryProductKPFC.Parse(answer)
 	fmt.Printf("[genai ответ]: в 100гр %s - %.0f ккал\n", product.Name, product.Kcal)
+	fmt.Println("Сохранить новый продукт в базу?")
+	var saveToDbAnswer string
+	fmt.Scanf("%s", &saveToDbAnswer)
+	if saveToDbAnswer == "y" {
+		fmt.Printf(
+			"[Сохранение в базу]: %s, %.0f (%.0f, %.0f, %.0f)\n",
+			product.Name,
+			product.Kcal,
+			product.Proteins,
+			product.Fats,
+			product.Carbohydrates,
+		)
+		err = kcaldb.SaveProduct(product)
+		if err != nil {
+			fmt.Printf("[Ошибка сохранения в базу]: %s\n", err)
+		}
+	}
 	return &ProductRecord{
-		Product: *product,
-		Weight: float32(meal.Weight),
-		Error: err,
+		Product:   *product,
+		Weight:    float32(meal.Weight),
+		Error:     err,
 		LlmResult: answer,
 	}
 }
 
-func mapMealsToProducts(meals []queryMapMeals.MealItem)([]ProductRecord) {
+func mapMealsToProducts(meals []queryMapMeals.MealItem) []ProductRecord {
 	records := []ProductRecord{}
 	for _, meal := range meals {
 		recordItem := mealItemToProduct(&meal)
@@ -84,11 +101,11 @@ func mapMealsToProducts(meals []queryMapMeals.MealItem)([]ProductRecord) {
 	return records
 }
 
-func GetMealKPFC(input string)([]ProductRecord, error) {
+func GetMealKPFC(input string) ([]ProductRecord, error) {
 	formattedInput := strings.ToLower(input)
 	fmt.Printf("[genai преобразование в json]:\n%s\n", input)
 	response, err := queryMapMeals.QueryAi(formattedInput)
-    if err != nil {
+	if err != nil {
 		return nil, err
 	}
 	fmt.Printf("[Парсинг в json]:\n%s\n", response)
