@@ -69,7 +69,7 @@ func mealItemToProduct(meal *queryMapMeals.MealItem) *ProductRecord {
 	fmt.Printf("[genai ответ]: в 100гр %s - %.0f ккал\n", product.Name, product.Kcal)
 	fmt.Println("Сохранить новый продукт в базу?")
 	var saveToDbAnswer string
-	fmt.Scanf("%s", &saveToDbAnswer)
+	fmt.Scanf("%s\n", &saveToDbAnswer)
 	if saveToDbAnswer == "y" {
 		fmt.Printf(
 			"[Сохранение в базу]: %s, %.0f (%.0f, %.0f, %.0f)\n",

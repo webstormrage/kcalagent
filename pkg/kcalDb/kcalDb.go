@@ -87,7 +87,7 @@ func SaveProduct(product *Product) error {
 	}
 	defer db.Close()
 	_, err = db.Exec(
-		"INSERT INTO products (name, kcal, proteins, fats, carbohydrates) VALUES ($1, $2, $3, $4, $5, $6)",
+		"INSERT INTO products (name, kcal, proteins, fats, carbohydrates) VALUES ($1, $2, $3, $4, $5)",
 		product.Name,
 		product.Kcal,
 		product.Proteins,

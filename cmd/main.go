@@ -76,11 +76,11 @@ func printReport() {
 }
 
 func main() {
-	err := kcaldb.SetupDb()
+	err := appContext.Init()
 	if err != nil {
 		panic(err)
 	}
-	err = appContext.Init()
+	err = kcaldb.SetupDb()
 	if err != nil {
 		panic(err)
 	}
@@ -96,7 +96,7 @@ func main() {
 	aggregate(records)
 	var saveToDbAnswer string
 	fmt.Println("Сохранить запись в базу?")
-	fmt.Scanf("%s", &saveToDbAnswer)
+	fmt.Scanf("%s\n", &saveToDbAnswer)
 	if saveToDbAnswer == "y" {
 		saveToDatabase(records)
 	}
