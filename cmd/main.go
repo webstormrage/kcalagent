@@ -6,7 +6,6 @@ import (
 	kcaldb "ai-kcal-agent/pkg/kcalDb"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -24,13 +23,7 @@ func aggregate(records []kcalAi.ProductRecord) {
 	var fats float32 = 0
 	var carbohydrates float32 = 0
 	details := ""
-	for i, v := range records {
-		if len(v.LlmResult) > 0 {
-			err := os.WriteFile("logs/multi-output-"+strconv.Itoa(i), []byte(v.LlmResult), 0644)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
+	for _, v := range records {
 		kcal += v.GetKcal()
 		proteins += v.GetProteins()
 		fats += v.GetFats()

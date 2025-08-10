@@ -97,6 +97,24 @@ func SaveProduct(product *Product) error {
 	return err
 }
 
+func UpdateProduct(product *Product) error {
+	ctx := appContext.Get()
+	db, err := sql.Open("postgres", ctx.DataSourceName)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec(
+		"UPDATE products SET kcal=$1, proteins=$2, fats=$3, carbohydrates=$4 WHERE id=$5",
+		product.Kcal,
+		product.Proteins,
+		product.Fats,
+		product.Carbohydrates,
+		product.Id,
+	)
+	return err
+}
+
 func SaveMeals(meal *MealPayload) error {
 	ctx := appContext.Get()
 	db, err := sql.Open("postgres", ctx.DataSourceName)
@@ -112,6 +130,21 @@ func SaveMeals(meal *MealPayload) error {
 		meal.Proteins,
 		meal.Fats,
 		meal.Carbohydrates,
+	)
+	return err
+}
+
+func SaveAlias(alias string, productId int64) error {
+	ctx := appContext.Get()
+	db, err := sql.Open("postgres", ctx.DataSourceName)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	_, err = db.Exec(
+		"INSERT INTO products_aliases VALUES ($1, $2)",
+		alias,
+		productId,
 	)
 	return err
 }

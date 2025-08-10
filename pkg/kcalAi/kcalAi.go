@@ -67,23 +67,6 @@ func mealItemToProduct(meal *queryMapMeals.MealItem) *ProductRecord {
 	fmt.Printf("[genai преобразование в json]:\n%s\n", answer)
 	product, err = queryProductKPFC.Parse(answer)
 	fmt.Printf("[genai ответ]: в 100гр %s - %.0f ккал\n", product.Name, product.Kcal)
-	fmt.Println("Сохранить новый продукт в базу?")
-	var saveToDbAnswer string
-	fmt.Scanf("%s\n", &saveToDbAnswer)
-	if saveToDbAnswer == "y" {
-		fmt.Printf(
-			"[Сохранение в базу]: %s, %.0f (%.0f, %.0f, %.0f)\n",
-			product.Name,
-			product.Kcal,
-			product.Proteins,
-			product.Fats,
-			product.Carbohydrates,
-		)
-		err = kcaldb.SaveProduct(product)
-		if err != nil {
-			fmt.Printf("[Ошибка сохранения в базу]: %s\n", err)
-		}
-	}
 	return &ProductRecord{
 		Product:   *product,
 		Weight:    float32(meal.Weight),
@@ -92,10 +75,52 @@ func mealItemToProduct(meal *queryMapMeals.MealItem) *ProductRecord {
 	}
 }
 
+func saveToDb(record *ProductRecord, alias string) {
+	var saveToDbAnswer string
+	var err error
+	if record.Product.Id != 0 {
+		fmt.Printf("Обновить продукт %s в базе?\n", record.Product.Name)
+	} else {
+		fmt.Println("Сохранить новый продукт в базу?")
+	}
+	fmt.Scanf("%s\n", &saveToDbAnswer)
+	if saveToDbAnswer == "y" {
+		fmt.Printf(
+			"[Сохранение в базу]: %s, %.0f (%.0f, %.0f, %.0f)\n",
+			record.Product.Name,
+			record.Product.Kcal,
+			record.Product.Proteins,
+			record.Product.Fats,
+			record.Product.Carbohydrates,
+		)
+		if record.Product.Id != 0 {
+			err = kcaldb.UpdateProduct(&record.Product)
+		} else {
+			err = kcaldb.SaveProduct(&record.Product)
+		}
+
+		if err != nil {
+			fmt.Printf("[Ошибка сохранения в базу]: %s\n", err)
+		}
+
+		if len(alias) != 0 {
+			fmt.Printf("Сохранение алиаса: %s к продукту %s\n", alias, record.Product.Name)
+			err = kcaldb.SaveAlias(alias, record.Product.Id)
+		}
+
+		if err != nil {
+			fmt.Printf("[Ошибка сохранения алиаса]: %s\n", err)
+		}
+	}
+}
+
 func mapMealsToProducts(meals []queryMapMeals.MealItem) []ProductRecord {
 	records := []ProductRecord{}
 	for _, meal := range meals {
 		recordItem := mealItemToProduct(&meal)
+		if meal.AddFlag {
+			saveToDb(recordItem, meal.Alias)
+		}
 		records = append(records, *recordItem)
 	}
 	return records
