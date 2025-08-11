@@ -41,6 +41,18 @@ func mealItemToProduct(meal *queryMapMeals.MealItem) *ProductRecord {
 	}
 	if product != nil {
 		fmt.Printf("[Совпадение в таблице products]: %s\n", product.Name)
+		if meal.Values != nil {
+			fmt.Printf("[Используются значения из запроса]: %d, %d, %d, %d\n",
+				meal.Values.Kcal,
+				meal.Values.Proteins,
+				meal.Values.Fats,
+				meal.Values.Carbohydrates,
+			)
+			product.Kcal = float64(meal.Values.Kcal)
+			product.Proteins = float64(meal.Values.Proteins)
+			product.Fats = float64(meal.Values.Fats)
+			product.Carbohydrates = float64(meal.Values.Carbohydrates)
+		}
 		return &ProductRecord{
 			Product: *product,
 			Weight:  float32(meal.Weight),
@@ -56,12 +68,42 @@ func mealItemToProduct(meal *queryMapMeals.MealItem) *ProductRecord {
 	}
 	if product != nil {
 		fmt.Printf("[Совпадение в таблице products_aliases]: %s\n", product.Name)
+		if meal.Values != nil {
+			fmt.Printf("[Используются значения из запроса]: %d, %d, %d, %d\n",
+				meal.Values.Kcal,
+				meal.Values.Proteins,
+				meal.Values.Fats,
+				meal.Values.Carbohydrates,
+			)
+			product.Kcal = float64(meal.Values.Kcal)
+			product.Proteins = float64(meal.Values.Proteins)
+			product.Fats = float64(meal.Values.Fats)
+			product.Carbohydrates = float64(meal.Values.Carbohydrates)
+		}
 		return &ProductRecord{
 			Product: *product,
 			Weight:  float32(meal.Weight),
 		}
 	}
 	fmt.Printf("[Не найдено в таблице products_aliases]: %s\n", meal.Name)
+	if meal.Values != nil {
+		fmt.Printf("[Используются значения из запроса]: %d, %d, %d, %d\n",
+			meal.Values.Kcal,
+			meal.Values.Proteins,
+			meal.Values.Fats,
+			meal.Values.Carbohydrates,
+		)
+		return &ProductRecord{
+			Product: kcaldb.Product{
+				Name:          meal.Name,
+				Kcal:          float64(meal.Values.Kcal),
+				Proteins:      float64(meal.Values.Proteins),
+				Fats:          float64(meal.Values.Fats),
+				Carbohydrates: float64(meal.Values.Carbohydrates),
+			},
+			Weight: float32(meal.Weight),
+		}
+	}
 	fmt.Printf("[genai Обработка ввода]: %s\n", meal.Name)
 	answer, err := queryProductKPFC.QueryAi(meal.Name)
 	fmt.Printf("[genai преобразование в json]:\n%s\n", answer)
