@@ -20,13 +20,13 @@ type MealItem struct {
 	Weight  int32       `json:"weight"`
 	AddFlag bool        `json:"addFlag"`
 	Alias   string      `json:"alias"`
-	Values  *MealValues `json:"values"`
+	Values  *MealValues `json:"values,omitempty"`
 }
 
 const promptTemplate = "Преобразуй эти данные о названии продукта и весе в json согласно схеме," +
 	"если в конце строки есть +, то addFlag=true иначе false" +
 	"если в строке есть 4 числа в скобочках, то их нужно соответственно сохранить в поле values.Kcal, values.Proteins, values.Fats, values.Carbohydrates" +
-	"иначе в values должен быть null" +
+	"иначе в values не должен приходить" +
 	"если в скобочках указана строка, то она должна быть сохранено в name, а строка перед скобочками в alias" +
 	"если скобочек нет, или в них указаны числа, то alias должен быть пустой строкой" +
 	": \n%s"
