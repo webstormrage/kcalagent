@@ -2,3 +2,5 @@
 logs/
 
 .idea/
+
+frontend/node_modules/

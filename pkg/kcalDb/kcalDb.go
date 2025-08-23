@@ -24,7 +24,7 @@ func GetProductByName(name string) (*Product, error) {
 		return nil, err
 	}
 	defer db.Close()
-	row := db.QueryRow("SELECT * FROM products WHERE name=$1;", name)
+	row := db.QueryRow("SELECT name, kcal, proteins, fats, carbohydrates, id FROM products WHERE name=$1;", name)
 	var product Product
 	err = row.Scan(&product.Name, &product.Kcal, &product.Proteins, &product.Fats, &product.Carbohydrates, &product.Id)
 	if err == sql.ErrNoRows {
@@ -49,7 +49,7 @@ func GetProductByAlias(name string) (*Product, error) {
 		return nil, err
 	}
 	defer db.Close()
-	row := db.QueryRow("SELECT * FROM products_aliases WHERE name=$1;", name)
+	row := db.QueryRow("SELECT name, product_id, id FROM products_aliases WHERE name=$1;", name)
 	var alias ProductAlias
 	err = row.Scan(&alias.Name, &alias.ProductId, &alias.Id)
 	if err == sql.ErrNoRows {
@@ -59,7 +59,7 @@ func GetProductByAlias(name string) (*Product, error) {
 		return nil, err
 	}
 	var product Product
-	row = db.QueryRow("SELECT * FROM products WHERE id=$1;", alias.ProductId)
+	row = db.QueryRow("SELECT name, kcal, proteins, fats, carbohydrates, id FROM products WHERE id=$1;", alias.ProductId)
 	err = row.Scan(&product.Name, &product.Kcal, &product.Proteins, &product.Fats, &product.Carbohydrates, &product.Id)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -147,13 +147,6 @@ func SaveAlias(alias string, productId int64) error {
 		productId,
 	)
 	return err
-}
-
-type MealSummary struct {
-	Kcal          float64
-	Proteins      float64
-	Fats          float64
-	Carbohydrates float64
 }
 
 func GetDailySummary(dayStartTime time.Time) (*MealSummary, error) {
