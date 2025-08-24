@@ -1,8 +1,8 @@
 import React from "react";
-import { Card, Table } from "antd";
+import { Table } from "antd";
 import {useDailyQuery} from "./daily-query.js";
 
-const fmt = (v) => Number(v).toFixed(2);
+const fmt = (v) => Number(v).toFixed(0);
 
 const columns = [
     { title: "Продукт",     dataIndex: "name",           key: "kcal"},
@@ -19,7 +19,6 @@ export function Daily() {
         : [];
 
     return (
-        <Card title="Сводка за сегодня">
             <Table
                 columns={columns}
                 dataSource={rows}
@@ -27,6 +26,5 @@ export function Daily() {
                 loading={isLoading}
                 locale={{ emptyText: isLoading ? "Загрузка…" : "Нет данных" }}
             />
-        </Card>
     );
 }

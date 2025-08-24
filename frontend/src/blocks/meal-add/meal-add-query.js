@@ -1,10 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { App } from "antd";
 import { api } from "../../network/client";
+import {getRoute, isDesktop, ROUTE_NAMES} from "../../route.js";
+import {useNavigate} from "react-router-dom";
 
 export function useAddMealMutation() {
     const { notification } = App.useApp();
     const qc = useQueryClient();
+    const navigate = useNavigate();
 
     return useMutation({
         mutationFn: async ({ product, volume, genAiToken }) => {
@@ -15,7 +18,6 @@ export function useAddMealMutation() {
                 volume,
                 genAiToken,
             });
-            console.log(data)
 
             return data;
         },
@@ -25,6 +27,10 @@ export function useAddMealMutation() {
                 message: "Прием пищи добавлен",
                 description: `${data.product}: ${data.kcal.toFixed(1)} ккал ${data.proteins.toFixed(1)} б. ${data.fats.toFixed(1)} ж. ${data.carbohydrates.toFixed(1)} у.`,
             });
+            qc.invalidateQueries({ queryKey: ["daily"] });
+            if(!isDesktop()){
+                navigate(getRoute(ROUTE_NAMES.SUMMARY))
+            }
         },
         onError: (err) => {
             const serverMsg = err?.response?.data ?? "Неизвестная ошибка";

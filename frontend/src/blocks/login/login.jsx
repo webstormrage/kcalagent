@@ -1,5 +1,5 @@
 import React from "react";
-import { Form, Input, Button, Card } from "antd";
+import { Form, Input, Button } from "antd";
 import { useLoginMutation } from "./login-query.js";
 
 export  function Login() {
@@ -7,7 +7,6 @@ export  function Login() {
     const onFinish = (values) => mutate(values);
 
     return (
-        <Card title="Авторизация">
         <Form layout="vertical" onFinish={onFinish}>
             <Form.Item name="login" label="Логин" rules={[{ required: true }]}>
                 <Input autoComplete="username" />
@@ -19,6 +18,5 @@ export  function Login() {
                 Войти
             </Button>
         </Form>
-        </Card>
     );
 }

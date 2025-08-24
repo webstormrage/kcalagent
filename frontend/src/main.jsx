@@ -1,13 +1,16 @@
 import React from "react";
 import {createRoot} from "react-dom/client";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import {Daily} from "./pages/daily/daily.jsx";
-import {Login} from "./pages/login/login.jsx";
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {Daily} from "./blocks/daily/daily.jsx";
+import {Login} from "./blocks/login/login.jsx";
+import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
 import "antd/dist/reset.css";
-import {AppLayout} from "./layout.jsx";
 import {App as AntdApp, ConfigProvider} from "antd";
-import {MealAdd} from "./pages/meal-add/meal-add.jsx";
+import {MealAdd} from "./blocks/meal-add/meal-add.jsx";
+import {DesktopLayout} from "./desktop.jsx";
+import {MobileLayout} from "./mobile.jsx";
+import {MealDaily} from "./multi-blocks/meal-daily/meal-daily.jsx";
+import {LoginCard} from "./multi-blocks/login-card/login-card.jsx";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -22,14 +25,32 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <AppLayout/>,
         children: [
-            {path: "login", element: <Login/>},
-            {path: "summary", element: <Daily/>},
-            {path: "meal", element: <MealAdd />}
+            { index: true, element: <Navigate to="desktop/meal" replace /> },
+            {
+                path: "desktop/",
+                element: <DesktopLayout />,
+                children: [
+                    { index: true, element: <Navigate to="meal" replace /> },
+                    {path: "login", element: <LoginCard />},
+                    {path: "meal", element: <MealDaily />}
+                ]
+            },
+            {
+                path: "mobile/",
+                element: <MobileLayout />,
+                children: [
+                    { index: true, element: <Navigate to="meal" replace /> },
+                    {path: "login", element: <Login/>},
+                    {path: "summary", element: <Daily/>},
+                    {path: "meal", element: <MealAdd />}
+                ]
+            }
         ],
     },
-], {basename: "/web"});
+],
+    {basename: "/web"}
+);
 
 const root = createRoot(document.getElementById("root"));
 root.render(

@@ -1,4 +1,5 @@
 import axios from "axios";
+import {getFullRoute, ROUTE_NAMES} from "../route.js";
 
 // База берётся из .env (Vite): VITE_API_BASE_URL="http://localhost:8080"
 // Если не задано — используем текущий origin.
@@ -28,8 +29,9 @@ api.interceptors.response.use(
         if (status === 401) {
             // чистим токен и уходим на /login
             localStorage.removeItem("authToken");
-            if (typeof window !== "undefined" && window.location.pathname !== "/web/login") {
-                window.location.assign("/web/login");
+            const loginRoute = getFullRoute(ROUTE_NAMES.LOGIN);
+            if (typeof window !== "undefined" && window.location.pathname !== loginRoute) {
+                window.location.assign(loginRoute);
             }
         }
         return Promise.reject(error);

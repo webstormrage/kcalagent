@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../network/client";
 import { App } from "antd";
+import {getRoute, ROUTE_NAMES} from "../../route.js";
 
 export function useLoginMutation() {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ export function useLoginMutation() {
         },
 
         onSuccess: () => {
-            navigate("/summary", { replace: true }); // редирект в индексный роут
+            navigate(getRoute(ROUTE_NAMES.MEAL), { replace: true });
         },
 
         onError: (err) => {

@@ -9,6 +9,7 @@ import {App} from "antd";
 export function useDailyQuery() {
     const { notification } = App.useApp();
     return useQuery({
+        queryKey: ['daily'],
         queryFn: async () => {
             const { data } = await api.get("/get-daily-summary");
             return data
