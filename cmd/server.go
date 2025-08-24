@@ -30,6 +30,7 @@ func runServer() {
 
 	mux.HandleFunc("/auth/login", service.HandleLogin)
 	mux.HandleFunc("/get-daily-summary", service.GetDailyReportHandler)
+	mux.HandleFunc("/meals/add", service.AddMealHandler)
 	server := &http.Server{
 		Addr:         ":" + ctx.ServerPort,
 		Handler:      logMiddleware(ctx.Logger, mux),

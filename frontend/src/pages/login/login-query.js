@@ -1,10 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { message } from "antd";
 import { api } from "../../network/client";
+import { App } from "antd";
 
 export function useLoginMutation() {
     const navigate = useNavigate();
+    const { notification } = App.useApp();
 
     return useMutation({
         // Важно: пропускаем добавление X-Auth у логина (skipAuth: true)
@@ -22,16 +23,13 @@ export function useLoginMutation() {
         },
 
         onSuccess: () => {
-            navigate("/", { replace: true }); // редирект в индексный роут
+            navigate("/summary", { replace: true }); // редирект в индексный роут
         },
 
         onError: (err) => {
             // покрасивее достанем сообщение с сервера, если есть
-            const serverMsg =
-                err?.response?.data?.message ||
-                (typeof err?.response?.data === "string" ? err.response.data : "") ||
-                err?.message;
-            message.error(serverMsg || "Не удалось войти");
+            const serverMsg = err?.response?.data ?? "Неизвестная ошибка";
+            notification.error({ message: "Ошибка", description: serverMsg});
         },
     });
 }

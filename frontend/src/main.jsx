@@ -1,12 +1,13 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Daily } from "./pages/daily/daily.jsx";
-import { Login } from "./pages/login/login.jsx";
+import {createRoot} from "react-dom/client";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {Daily} from "./pages/daily/daily.jsx";
+import {Login} from "./pages/login/login.jsx";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import "antd/dist/reset.css";
 import {AppLayout} from "./layout.jsx";
-import './index.css';
+import {App as AntdApp, ConfigProvider} from "antd";
+import {MealAdd} from "./pages/meal-add/meal-add.jsx";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -21,20 +22,22 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <AppLayout />,
+        element: <AppLayout/>,
         children: [
-            { path: "login", element: <Login /> },
-            { path: "daily", element: <Daily /> },
-            { index: true, element: <Daily /> },
+            {path: "login", element: <Login/>},
+            {path: "summary", element: <Daily/>},
+            {path: "meal", element: <MealAdd />}
         ],
     },
-], { basename: "/web" });
+], {basename: "/web"});
 
 const root = createRoot(document.getElementById("root"));
 root.render(
-    <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
-        </QueryClientProvider>
-    </React.StrictMode>
+    <ConfigProvider>
+        <AntdApp>
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router}/>
+            </QueryClientProvider>
+        </AntdApp>
+    </ConfigProvider>
 );
