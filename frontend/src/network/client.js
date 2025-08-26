@@ -4,7 +4,7 @@ import {getFullRoute, ROUTE_NAMES} from "../route.js";
 // База берётся из .env (Vite): VITE_API_BASE_URL="http://localhost:8080"
 // Если не задано — используем текущий origin.
 export const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || "",
+    baseURL: import.meta.env.DEV ? "/api" : "",
     // можно добавить timeout и т.п.
 });
 

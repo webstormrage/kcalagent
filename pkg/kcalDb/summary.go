@@ -7,11 +7,13 @@ import (
 )
 
 type MealSummary struct {
+	ID            int     `json:"id"`
 	Name          string  `json:"name"`
 	Kcal          float64 `json:"kcal"`
 	Proteins      float64 `json:"proteins"`
 	Fats          float64 `json:"fats"`
 	Carbohydrates float64 `json:"carbohydrates"`
+	Weight        float64 `json:"weight"`
 }
 
 func GetDailySummaryByUser(dayStartTime time.Time, userId int64) ([]MealSummary, error) {
@@ -25,17 +27,18 @@ func GetDailySummaryByUser(dayStartTime time.Time, userId int64) ([]MealSummary,
 
 	ctx.Logger.Printf("[DB] daily summary user_id=%d since=%s", userId, dayStartTime.Format(time.RFC3339))
 
-	// Все строки + итог, вычисленный в SQL
 	const q = `
-SELECT name, kcal, proteins, fats, carbohydrates
+SELECT id, name, kcal, proteins, fats, carbohydrates, weight
 FROM (
     -- отдельные приёмы
     SELECT
+        id,
         name,
         COALESCE(kcal, 0)          AS kcal,
         COALESCE(proteins, 0)      AS proteins,
         COALESCE(fats, 0)          AS fats,
         COALESCE(carbohydrates, 0) AS carbohydrates,
+        COALESCE(weight, 0)        AS weight,
         created_at,
         0 AS ord
     FROM meals
@@ -45,11 +48,13 @@ FROM (
 
     -- итоговая строка
     SELECT
+        -1 AS id,  -- НЕ NULL, чтобы скан в int не падал
         'ИТОГ' AS name,
         COALESCE(SUM(kcal), 0)          AS kcal,
         COALESCE(SUM(proteins), 0)      AS proteins,
         COALESCE(SUM(fats), 0)          AS fats,
         COALESCE(SUM(carbohydrates), 0) AS carbohydrates,
+        COALESCE(SUM(weight), 0)        AS weight,
         NULL::timestamp                  AS created_at,
         1 AS ord
     FROM meals
@@ -67,7 +72,15 @@ ORDER BY ord DESC, created_at DESC;
 	var list []MealSummary
 	for rows.Next() {
 		var m MealSummary
-		if err := rows.Scan(&m.Name, &m.Kcal, &m.Proteins, &m.Fats, &m.Carbohydrates); err != nil {
+		if err := rows.Scan(
+			&m.ID,
+			&m.Name,
+			&m.Kcal,
+			&m.Proteins,
+			&m.Fats,
+			&m.Carbohydrates,
+			&m.Weight,
+		); err != nil {
 			return nil, err
 		}
 		list = append(list, m)

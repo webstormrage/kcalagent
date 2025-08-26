@@ -12,7 +12,7 @@ const columns = [
     { title: "Углеводы",    dataIndex: "carbohydrates",  key: "carbohydrates",  render: fmt },
 ];
 
-export function Daily() {
+export function Daily({onRowClick}) {
     const { data: summary, isLoading } = useDailyQuery();
     const rows = summary
         ? summary.map(((d, i) => ({...d, key: i})))
@@ -24,6 +24,12 @@ export function Daily() {
                 dataSource={rows}
                 pagination={false}
                 loading={isLoading}
+                onRow={(record) => {
+                    if(record.id === -1){
+                        return null
+                    }
+                    return { onClick: () => onRowClick(record)};
+                }}
                 locale={{ emptyText: isLoading ? "Загрузка…" : "Нет данных" }}
             />
     );

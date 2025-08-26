@@ -48,6 +48,7 @@ func GetDailyReportHandler(w http.ResponseWriter, r *http.Request) {
 	// 4) Получаем суточную сводку для пользователя
 	report, err := kcaldb.GetDailySummaryByUser(dayStartTime, user.ID)
 	if err != nil {
+		ctx.Logger.Printf("[error]: failed to get report: %v\n", err)
 		http.Error(w, "failed to get report", http.StatusInternalServerError)
 		return
 	}
@@ -55,6 +56,6 @@ func GetDailyReportHandler(w http.ResponseWriter, r *http.Request) {
 	// 5) Отдаём JSON
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(report); err != nil {
-		http.Error(w, "failed to get report", http.StatusInternalServerError)
+		http.Error(w, "failed to write response", http.StatusInternalServerError)
 	}
 }

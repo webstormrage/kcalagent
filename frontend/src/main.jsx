@@ -11,6 +11,8 @@ import {DesktopLayout} from "./desktop.jsx";
 import {MobileLayout} from "./mobile.jsx";
 import {MealDaily} from "./multi-blocks/meal-daily/meal-daily.jsx";
 import {LoginCard} from "./multi-blocks/login-card/login-card.jsx";
+import {MealEditSingle} from "./multi-blocks/meal-edit-single/meal-edit-single.jsx";
+import {DailySingle} from "./multi-blocks/daily-single/daily-single.jsx";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -42,8 +44,9 @@ const router = createBrowserRouter([
                 children: [
                     { index: true, element: <Navigate to="meal" replace /> },
                     {path: "login", element: <Login/>},
-                    {path: "summary", element: <Daily/>},
-                    {path: "meal", element: <MealAdd />}
+                    {path: "summary", element: <DailySingle />},
+                    {path: "meal/:mealId", element: <MealEditSingle /> },
+                    {path: "meal", element: <MealAdd />},
                 ]
             }
         ],

@@ -15,6 +15,7 @@ type mealReq struct {
 }
 
 type mealResp struct {
+	ID            int64   `json:"id"`
 	Product       string  `json:"product"`
 	Volume        int64   `json:"volume"`
 	Kcal          float64 `json:"kcal"`
@@ -112,7 +113,7 @@ func AddMealHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to get meal", http.StatusInternalServerError)
 	}
 	// 6) Сохранение meal в базу
-	err = kcaldb.SaveUserMeal(&kcaldb.MealPayload{
+	mealId, err := kcaldb.SaveUserMeal(&kcaldb.MealPayload{
 		Name:          resp.Product,
 		Kcal:          resp.Kcal,
 		Weight:        float64(resp.Volume),
@@ -124,6 +125,7 @@ func AddMealHandler(w http.ResponseWriter, r *http.Request) {
 		ctx.Logger.Printf("[error]: failed to save meal\n")
 		http.Error(w, "failed to save meal", http.StatusInternalServerError)
 	}
+	resp.ID = mealId
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(resp)
