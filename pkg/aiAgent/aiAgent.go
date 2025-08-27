@@ -1,7 +1,6 @@
 package aiAgent
 
 import (
-	"ai-kcal-agent/pkg/appContext"
 	"context"
 	"fmt"
 	"google.golang.org/genai"
@@ -26,9 +25,4 @@ func QueryAi(prompt string, config *genai.GenerateContentConfig, token string) (
 		config,
 	)
 	return result.Text(), err
-}
-
-func Post(prompt string, config *genai.GenerateContentConfig) (ret string, err error) {
-	ctx := appContext.Get()
-	return QueryAi(prompt, config, ctx.GenAiApiKey)
 }

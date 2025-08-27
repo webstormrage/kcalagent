@@ -8,7 +8,6 @@ import (
 
 type Context struct {
 	DataSourceName string
-	GenAiApiKey    string
 	JwtSecret      string
 	ServerPort     string
 	ServerMode     string
@@ -24,7 +23,6 @@ func Init() error {
 	}
 	context = &Context{
 		DataSourceName: os.Getenv("DATA_SOURCE_NAME"),
-		GenAiApiKey:    os.Getenv("GEN_AI_API_KEY"),
 		JwtSecret:      os.Getenv("JWT_SECRET"),
 		ServerPort:     os.Getenv("SERVER_PORT"),
 		ServerMode:     os.Getenv("SERVER_MODE"),

@@ -5,6 +5,21 @@ import (
 	"database/sql"
 )
 
+type Product struct {
+	Id            int64
+	Name          string
+	Kcal          float64
+	Proteins      float64
+	Fats          float64
+	Carbohydrates float64
+}
+
+type ProductAlias struct {
+	Name      string
+	ProductId int64
+	Id        int64
+}
+
 func GetUserProductByName(name string, userId int64) (*Product, error) {
 	ctx := appContext.Get()
 	db, err := sql.Open("postgres", ctx.DataSourceName)

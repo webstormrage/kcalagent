@@ -5,6 +5,15 @@ import (
 	"database/sql"
 )
 
+type MealPayload struct {
+	Name          string
+	Weight        float64
+	Kcal          float64
+	Proteins      float64
+	Fats          float64
+	Carbohydrates float64
+}
+
 func SaveUserMeal(meal *MealPayload, userId int64) (int64, error) {
 	app := appContext.Get()
 
