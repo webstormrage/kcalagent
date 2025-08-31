@@ -5,9 +5,6 @@ import (
 )
 
 func main() {
-	err := appContext.Init()
-	if err != nil {
-		panic(err)
-	}
+	appContext.Init()
 	runServer()
 }

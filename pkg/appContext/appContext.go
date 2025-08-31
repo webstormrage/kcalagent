@@ -1,7 +1,6 @@
 package appContext
 
 import (
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 )
@@ -16,11 +15,7 @@ type Context struct {
 
 var context *Context
 
-func Init() error {
-	err := godotenv.Load()
-	if err != nil {
-		return err
-	}
+func Init() {
 	context = &Context{
 		DataSourceName: os.Getenv("DATA_SOURCE_NAME"),
 		JwtSecret:      os.Getenv("JWT_SECRET"),
@@ -28,7 +23,6 @@ func Init() error {
 		ServerMode:     os.Getenv("SERVER_MODE"),
 		Logger:         log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime),
 	}
-	return nil
 }
 
 func Get() Context {
