@@ -36,6 +36,7 @@ WORKDIR /app
 # бинарь и статик (ожидается ./frontend/dist)
 COPY --from=gobuilder /bin/app /app/app
 COPY --from=frontend /app/frontend/dist /app/frontend/dist
+COPY sql ./sql
 
 EXPOSE 8080
 USER nonroot:nonroot

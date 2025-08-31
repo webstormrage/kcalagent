@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: kcal_postgres
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./dump:/docker-entrypoint-initdb.d
+
+  app:
+    build: .
+    container_name: kcal_app
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./.env:/app/.env
+
+volumes:
+  db_data:

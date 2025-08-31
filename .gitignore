@@ -3,4 +3,6 @@ logs/
 
 .idea/
 
+dump/*
+
 frontend/node_modules/
