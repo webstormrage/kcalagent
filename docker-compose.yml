@@ -7,8 +7,6 @@ services:
     restart: always
     env_file:
       - .env
-    ports:
-      - "5432:5432"                       # база будет доступна и из Windows
     volumes:
       - db_data:/var/lib/postgresql/data  # сохраняем данные между перезапусками
       - ./dump:/docker-entrypoint-initdb.d  # все SQL-скрипты из dump/ выполнятся при первом запуске
