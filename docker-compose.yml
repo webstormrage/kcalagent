@@ -14,6 +14,7 @@ services:
   app:
     build: .
     container_name: kcal_app
+    restart: always
     depends_on:
       - db
     env_file:
