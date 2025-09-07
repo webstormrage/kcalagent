@@ -12,15 +12,21 @@ func dayWindowUTC(dayOffset int, hoursOffset int) (time.Time, time.Time) {
 	if dayOffset < 0 {
 		dayOffset = 0
 	}
-	const dayStartHourLocal = 6 // фиксированная "начало суток" в локальном времени
+	const dayStartHourLocal = 6 // фиксированное начало суток в локальном времени
 
 	loc := time.FixedZone("CustomTZ", hoursOffset*3600)
 
-	// Берём локальную "сегодняшнюю" дату в нужной зоне и смещаем на dayOffset дней назад
 	nowLocal := time.Now().In(loc)
+
+	// Если текущее локальное время до 6 утра → считаем, что день ещё "вчерашний"
+	if nowLocal.Hour() < dayStartHourLocal {
+		dayOffset++
+	}
+
+	// Берём локальную дату с учётом сдвига dayOffset
 	targetLocal := nowLocal.AddDate(0, 0, -dayOffset)
 
-	// Начало дня: 06:00 локального времени той даты
+	// Начало дня: 06:00 локального времени
 	startLocal := time.Date(
 		targetLocal.Year(), targetLocal.Month(), targetLocal.Day(),
 		dayStartHourLocal, 0, 0, 0, loc,
