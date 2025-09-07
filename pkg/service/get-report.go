@@ -8,15 +8,27 @@ import (
 	"time"
 )
 
-func getDayStart(offsetHours int) time.Time {
-	loc := time.FixedZone("CustomTZ", offsetHours*3600)
+func dayWindowUTC(dayOffset int, hoursOffset int) (time.Time, time.Time) {
+	if dayOffset < 0 {
+		dayOffset = 0
+	}
+	const dayStartHourLocal = 6 // фиксированная "начало суток" в локальном времени
 
-	// берём текущее время в этой зоне
-	dayStartTime := time.Now().In(loc)
-	dayStartTime = dayStartTime.Add(-6 * time.Hour)
-	dayStartTime = time.Date(dayStartTime.Year(), dayStartTime.Month(), dayStartTime.Day(),
-		6, 0, 0, 0, loc)
-	return dayStartTime
+	loc := time.FixedZone("CustomTZ", hoursOffset*3600)
+
+	// Берём локальную "сегодняшнюю" дату в нужной зоне и смещаем на dayOffset дней назад
+	nowLocal := time.Now().In(loc)
+	targetLocal := nowLocal.AddDate(0, 0, -dayOffset)
+
+	// Начало дня: 06:00 локального времени той даты
+	startLocal := time.Date(
+		targetLocal.Year(), targetLocal.Month(), targetLocal.Day(),
+		dayStartHourLocal, 0, 0, 0, loc,
+	)
+
+	startUTC := startLocal.UTC()
+	endUTC := startUTC.Add(24 * time.Hour)
+	return startUTC, endUTC
 }
 
 func GetDailyReportHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,10 +55,10 @@ func GetDailyReportHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 3) Начало дня (пример с UTC+4)
-	dayStartTime := getDayStart(4)
+	startUtc, endUtc := dayWindowUTC(0, 4)
 
 	// 4) Получаем суточную сводку для пользователя
-	report, err := kcaldb.GetDailySummaryByUser(dayStartTime, user.ID)
+	report, err := kcaldb.GetDailySummaryByUser(startUtc, endUtc, user.ID)
 	if err != nil {
 		ctx.Logger.Printf("[error]: failed to get report: %v\n", err)
 		http.Error(w, "failed to get report", http.StatusInternalServerError)

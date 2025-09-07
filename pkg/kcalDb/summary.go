@@ -16,7 +16,7 @@ type MealSummary struct {
 	Weight        float64 `json:"weight"`
 }
 
-func GetDailySummaryByUser(dayStartTime time.Time, userId int64) ([]MealSummary, error) {
+func GetDailySummaryByUser(start time.Time, end time.Time, userId int64) ([]MealSummary, error) {
 	ctx := appContext.Get()
 
 	db, err := sql.Open("postgres", ctx.DataSourceName)
@@ -25,7 +25,7 @@ func GetDailySummaryByUser(dayStartTime time.Time, userId int64) ([]MealSummary,
 	}
 	defer db.Close()
 
-	ctx.Logger.Printf("[DB] daily summary user_id=%d since=%s", userId, dayStartTime.Format(time.RFC3339))
+	ctx.Logger.Printf("[DB] daily summary user_id=%d window=[%s .. %s)", userId, start.Format(time.RFC3339), end.Format(time.RFC3339))
 
 	const q = `
 SELECT id, name, kcal, proteins, fats, carbohydrates, weight
@@ -42,7 +42,9 @@ FROM (
         created_at,
         0 AS ord
     FROM meals
-    WHERE created_at > $1 AND user_id = $2
+    WHERE created_at >= $1
+      AND created_at <  $2
+      AND user_id = $3
 
     UNION ALL
 
@@ -58,12 +60,14 @@ FROM (
         NULL::timestamp                  AS created_at,
         1 AS ord
     FROM meals
-    WHERE created_at > $1 AND user_id = $2
+    WHERE created_at >= $1
+      AND created_at <  $2
+      AND user_id = $3
 ) t
 ORDER BY ord DESC, created_at DESC;
 `
 
-	rows, err := db.Query(q, dayStartTime, userId)
+	rows, err := db.Query(q, start, end, userId)
 	if err != nil {
 		return nil, err
 	}
